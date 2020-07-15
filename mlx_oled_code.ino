@@ -39,7 +39,7 @@ void loop() {
       digitalWrite(led2, HIGH);
       delay(100);
       digitalWrite(led2, LOW);
-      if (temperature() > 35)
+      if (temperature() > 38)
       {
         digitalWrite(buzz, HIGH);
         delay(100);
@@ -52,8 +52,9 @@ void loop() {
       digitalWrite(led1, HIGH);
       delay(100);
       digitalWrite(led1, LOW);
+      delay(100);
     }
-  temperature();
+  //temperature();
 }
 
 void measure_distance()
