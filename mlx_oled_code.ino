@@ -1,5 +1,3 @@
-
-
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Wire.h>
@@ -11,6 +9,10 @@
 
 #define trigg 9 // pulse trigger
 #define echo 8  // pulse note
+#define buzz 7 // buzzer
+#define led1 6 // not in range
+#define led2 5 // correct range
+
 float distance;
 float time;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); //Declaring the display name (display)
@@ -22,15 +24,35 @@ void setup() {
   display.clearDisplay();
   display.display();
   Serial.begin(9600);
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(buzz, OUTPUT);
+  
 
 }
 
 void loop() {
-  /*measure_distance();
+  measure_distance();
   if (distance < 40)
     {
       temperature();
-    } */
+      digitalWrite(led2, HIGH);
+      delay(100);
+      digitalWrite(led2, LOW);
+      if (temperature() > 35)
+      {
+        digitalWrite(buzz, HIGH);
+        delay(100);
+        digitalWrite(buzz, LOW);
+        delay(100);
+      }
+    }
+
+  else {
+      digitalWrite(led1, HIGH);
+      delay(100);
+      digitalWrite(led1, LOW);
+    }
   temperature();
 }
 
@@ -46,8 +68,7 @@ void measure_distance()
   distance = time * 340 / 20000;
 }
 
-
-void temperature() 
+float temperature() 
 {
   display.clearDisplay();
   
@@ -80,6 +101,5 @@ void temperature()
   display.display();
   
   delay(100);
-
-  
+  return readval;
 }
