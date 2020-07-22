@@ -12,8 +12,9 @@
 #define buzz 7 // buzzer
 #define led1 6 // not in range
 #define led2 5 // correct range
+#define gatekey 4 // correct range
 
-float distance;
+int distance;
 float time;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); //Declaring the display name (display)
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
@@ -27,33 +28,55 @@ void setup() {
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(buzz, OUTPUT);
+  pinMode(gatekey, OUTPUT);
+  pinMode(trigg, OUTPUT); // Sets the trigPin as an OUTPUT
+  pinMode(echo, INPUT);
   
 
 }
 
 void loop() {
   measure_distance();
-  if (distance < 40)
+  if ((distance >2.5) && (distance < 30))
     {
       temperature();
-      digitalWrite(led2, HIGH);
-      delay(100);
-      digitalWrite(led2, LOW);
-      if (temperature() > 38)
+       if (temperature()<35)
       {
-        digitalWrite(buzz, HIGH);
-        delay(100);
-        digitalWrite(buzz, LOW);
-        delay(100);
+      digitalWrite(led2, HIGH);
+      digitalWrite(gatekey,HIGH);
+      delay(20);
+      digitalWrite(led2, LOW);
+      delay(20);
+      
       }
+      else if (temperature() > 35)
+      {
+        for (int j=0; j<5; j++){
+          digitalWrite(buzz, HIGH);
+          digitalWrite(led1, HIGH);
+          delay(500);
+          digitalWrite(buzz, LOW);
+          digitalWrite(led1, LOW);
+          delay(500);
+          }
+      
+      }
+    for (int i=0; i<2; i++){
+        digitalWrite(led1,HIGH);
+        digitalWrite(led2,HIGH);
+        delay(500);
+        digitalWrite(led1,LOW);
+        digitalWrite(led2,LOW);
+        delay(500);
+        digitalWrite(led1,HIGH);
+        digitalWrite(led2,HIGH);
+        delay(500);
+        digitalWrite(led1,LOW);
+        digitalWrite(led2,LOW);
+        delay(500);
+    }
     }
 
-  else {
-      digitalWrite(led1, HIGH);
-      delay(100);
-      digitalWrite(led1, LOW);
-      delay(100);
-    }
   //temperature();
 }
 
@@ -66,7 +89,10 @@ void measure_distance()
   digitalWrite(trigg, LOW);
   delayMicroseconds(2);
   time = pulseIn(echo, HIGH);
+ 
   distance = time * 340 / 20000;
+  
+  Serial.println(distance);
 }
 
 float temperature() 
@@ -92,15 +118,21 @@ float temperature()
   
   display.setTextSize(2);
   display.setCursor(50,17);
-  float readval = ((mlx.readObjectTempC() * 0.7188) + 15.744);
-  Serial.println(readval);
+  float readval =((0.0121*pow(mlx.readObjectTempC(), 3)) - (1.0833*pow(mlx.readObjectTempC(),2)) + (32.391*(mlx.readObjectTempC())) - 288.48);
+  if ((readval < 25) ){
+    display.println("low");
+  }
+  else if ((readval > 42)){
+    display.println("Over");
+    }
+  else {
   display.println(readval,1);
-  
   display.setCursor(110,17);
   display.println("C");
+  }
   
   display.display();
-  
   delay(100);
   return readval;
+  
 }
